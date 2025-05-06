@@ -1,4 +1,5 @@
-require('dotenv').config({ path: './mongo.env' })                     
+// ─── Load environment variables ───────────────────────────────────────
+require('dotenv').config({ path: './mongo.env' })  // ADDED
 
 const express        = require('express')
 const bcrypt         = require('bcrypt')
@@ -11,6 +12,7 @@ const app = express()
 const UserModel = require("./models/user")
 
 const mongoURI = process.env.MONGODB_CONNECTION_STRING
+const sessionSecret = process.env.NODE_SESSION_SECRET
 
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
@@ -18,6 +20,7 @@ mongoose.connect(mongoURI, {
 })
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.error(err))
+
 
 app.use(express.static(path.join(__dirname, "public")))
 
@@ -30,15 +33,27 @@ const store = new MongoDBSession({
 app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }))
 
+
 app.use(session({
-  secret: process.env.NODE_SESSION_SECRET,
+  secret: sessionSecret,                
   resave: false,
   saveUninitialized: false,
   store: store,
   cookie: {
-    maxAge: 1000 * 60 * 60              
+    maxAge: 1000 * 60 * 60           
   }
 }))
+
+const RENDER_URL = '<your link>';
+const PING_INTERVAL = 14 * 60 * 1000;
+function keepAlive() {
+    axios.get(RENDER_URL)
+        .then(response => {
+        })
+        .catch(error => {
+        });
+}
+setInterval(keepAlive, PING_INTERVAL);
 
 const isAuth = (req, res, next) => {
   if (req.session.isAuth) {
@@ -47,11 +62,11 @@ const isAuth = (req, res, next) => {
   res.redirect("/login")
 }
 
-app.get("/", (req, res) => {                 
+app.get("/", (req, res) => {
   res.render("landing")
 })
 
-app.get("/members", isAuth, (req, res) => {   
+app.get("/members", isAuth, (req, res) => {
   const images = [
     "/images/meow1.jpeg",
     "/images/meow2.jpeg",
@@ -60,7 +75,7 @@ app.get("/members", isAuth, (req, res) => {
   const imageUrl = images[Math.floor(Math.random() * images.length)]
   res.render("members", {
     user: req.session.user,
-    imageUrl                         
+    imageUrl
   })
 })
 
@@ -71,7 +86,7 @@ app.get("/signup", (req, res) => {
 app.post("/signup", async (req, res) => {
   const Joi = require("joi")
   const schema = Joi.object({
-    name:     Joi.string().max(30).required(),
+    name:     Joi.string().max(20).required(),
     email:    Joi.string().email().required(),
     password: Joi.string().min(6).required()
   })
@@ -92,7 +107,7 @@ app.post("/signup", async (req, res) => {
 
   req.session.user   = { id: user._id, name: user.name }
   req.session.isAuth = true
-  res.redirect("/members")            
+  res.redirect("/members")
 })
 
 app.get("/login", (req, res) => {
@@ -123,13 +138,13 @@ app.post("/login", async (req, res) => {
 
   req.session.user   = { id: user._id, name: user.name }
   req.session.isAuth = true
-  res.redirect("/members")                  
+  res.redirect("/members")
 })
 
 app.get("/logout", (req, res) => {
   req.session.destroy(err => {
     if (err) throw err
-    res.redirect("/")                    
+    res.redirect("/")
   })
 })
 

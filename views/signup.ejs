@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Sign Up</title></head>
+<body>
+  <h1>Sign Up</h1>
+  <% if (error) { %>
+    <p style="color:red"><%= error %></p>               <!-- ADDED -->
+  <% } %>
+  <form action="/signup" method="POST">
+    <input type="text" name="name"    placeholder="Name" required>
+    <input type="email" name="email"  placeholder="Email" required>
+    <input type="password" name="password"
+           placeholder="Password" required>
+    <button type="submit">Sign Up</button>
+  </form>
+  <p><a href="/">Home</a></p>                             <!-- ADDED for nav -->
+</body>
+</html>

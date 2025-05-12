@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>404 Not Found</title></head>
-<body>
-  <h1>404 — Page Not Found</h1>
-  <p><a href="/">Return Home</a></p>
-</body>
-</html>
+<%- include('templates/header', { title:'Not Found' }) %>
+<div class="alert alert-warning text-center mt-5">
+  <h1>404 Page Not Found</h1>
+  <p>The page you requested does not exist.</p>
+  <a href="/" class="btn btn-primary">Return Home</a>
+</div>
+<%- include('templates/footer') %>

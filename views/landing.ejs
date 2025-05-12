@@ -1,15 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome</title>
-</head>
-<body>
-  <h1>Welcome</h1>
-  <p>
-    <a href="/login">Login</a> 
-    <a href="/signup">Sign Up</a>
-  </p>
-</body>
-</html>
+<%- include('templates/header', { title:'Home', active:'home' }) %>
+
+<% if (user) { %>
+  <div class="text-center">
+    <h1>Hello, <%= user.name %>!</h1>
+    <p>
+      <a href="/members" class="btn btn-primary me-2">Members Area</a>
+      <a href="/logout" class="btn btn-secondary">Sign Out</a>
+    </p>
+  </div>
+<% } else { %>
+  <div class="text-center">
+    <h1>Welcome to MyApp</h1>
+    <p>
+      <a href="/signup" class="btn btn-primary me-2">Sign Up</a>
+      <a href="/login" class="btn btn-secondary">Log In</a>
+    </p>
+  </div>
+<% } %>
+
+<%- include('templates/footer') %>

@@ -1,0 +1,11 @@
+<%- include('templates/header', { title:'Admin', active:'admin' }) %>
+<h2 class="mb-4">User Management</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <%- users.map(user => include('templates/user', { user })).join('') %>
+  </tbody>
+</table>
+<%- include('templates/footer') %>

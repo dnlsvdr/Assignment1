@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Members</title></head>
-<body>
-  <h1>Hello, <%= user.name %>.</h1>
-  <img src="<%= imageUrl %>" alt="Random image">       <!-- ADDED -->
-  <p>
-    <a href="/logout">Sign out</a>                     <!-- CHANGED to GET -->
-  </p>
-</body>
-</html>
+<%- include('templates/header', { title:'Members', active:'members' }) %>
+<div class="text-center mb-4">
+  <h1>Hello, <%= user.name %>!</h1>
+  <a href="/logout" class="btn btn-secondary">Sign Out</a>
+</div>
+<!-- Bootstrap grid: 3 columns on md+ screens, stacked on sm -->
+<div class="row g-4">
+  <% images.forEach(img => { %>
+    <div class="col-12 col-md-4">
+      <img src="/images/<%= img %>" class="img-fluid rounded" alt="Member image">
+    </div>
+  <% }); %>
+</div>
+<%- include('templates/footer') %>

@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head><title>Log In</title></head>
-<body>
-  <h1>Log In</h1>
-  <% if (error) { %>
-    <p style="color:red"><%= error %></p>               <!-- ADDED -->
-  <% } %>
-  <form action="/login" method="POST">
-    <input type="email" name="email"    placeholder="Email" required>
-    <input type="password" name="password"
-           placeholder="Password" required>
-    <button type="submit">Log In</button>
-  </form>
-  <p><a href="/">Home</a></p>
-</body>
-</html>
+<%- include('templates/header', { title:'Log In', active:'login' }) %>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2>Log In</noline>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <form action="/login" method="post">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+  </div>
+</div>
+<%- include('templates/footer') %>

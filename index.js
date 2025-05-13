@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
@@ -7,18 +6,15 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const app = express();
+const PORT = process.env.PORT || 8000;
 
-const PORT = process.env.PORT || 5000;
-
-// — Connect to MongoDB (cleaned up)
 mongoose
   .connect(
     `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`
   )
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// — Define User model
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -27,11 +23,9 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
-// — Middleware
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-
 app.use(
   session({
     secret: process.env.NODE_SESSION_SECRET,
@@ -40,56 +34,82 @@ app.use(
     store: MongoStore.create({
       mongoUrl: `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`
     }),
-    cookie: { maxAge: 1000 * 60 * 60 } // 1 hour
+    cookie: { maxAge: 1000 * 60 * 60 }
   })
 );
 
-// — Routes —
-
-// Home
 app.get('/', (req, res) => {
-  res.render('index', { user: req.session.user });
+  res.render('index', { user: req.session.user, active: 'home' });
 });
 
-// Signup form
 app.get('/signup', (req, res) => {
-  res.render('signup');
+  res.render('signup', { error: null, active: 'signup' });
 });
 
-// Login form
+app.post('/signup', async (req, res) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  });
+  const { error, value } = schema.validate(req.body);
+  if (error) return res.render('signup', { error: error.details[0].message, active: 'signup' });
+  const hash = await bcrypt.hash(value.password, 10);
+  await User.create({ name: value.name, email: value.email, password: hash });
+  req.session.user = { name: value.name, email: value.email, user_type: 'user' };
+  res.redirect('/members');
+});
+
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login', { error: null, active: 'login' });
 });
 
-// Members (protected)
+app.post('/login', async (req, res) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  });
+  const { error, value } = schema.validate(req.body);
+  if (error) return res.render('login', { error: error.details[0].message, active: 'login' });
+  const user = await User.findOne({ email: value.email });
+  if (!user || !(await bcrypt.compare(value.password, user.password))) {
+    return res.render('login', { error: 'Invalid email or password', active: 'login' });
+  }
+  req.session.user = { name: user.name, email: user.email, user_type: user.user_type };
+  res.redirect('/members');
+});
+
 app.get('/members', (req, res) => {
   if (!req.session.user) return res.redirect('/');
-  res.render('members', { user: req.session.user });
+  res.render('members', { user: req.session.user, active: 'members' });
 });
 
-// Admin (protected + role check)
-app.get('/admin', (req, res) => {
+app.get('/admin', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   if (req.session.user.user_type !== 'admin') {
-    return res.status(403).render('403');
+    return res
+      .status(403)
+      .send(
+        `<div class="container text-center my-5"><h1>403 — Not Authorized</h1><p>You don’t have permission to view this page.</p><a href="/" class="btn btn-primary">Return Home</a></div>`
+      );
   }
-  // You’d fetch all users here
-  res.render('admin', { users: [] });
+  const users = await User.find().lean();
+  res.render('admin', { users, active: 'admin' });
 });
 
-// Logout
+app.post('/admin/toggle/:id', async (req, res) => {
+  const u = await User.findById(req.params.id);
+  u.user_type = u.user_type === 'admin' ? 'user' : 'admin';
+  await u.save();
+  res.redirect('/admin');
+});
+
 app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) return res.status(500).send('Logout error');
-    res.redirect('/');
-  });
+  req.session.destroy(err => (err ? res.status(500).send('Logout error') : res.redirect('/')));
 });
 
-// Catch‑all 404
 app.use((req, res) => {
-  res.status(404).render('404');
+  res.status(404).render('404', { active: null });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

@@ -1,0 +1,9 @@
+<li class="list-group-item d-flex justify-content-between align-items-center">
+    <span><%= user.email %> (<%= user.user_type %>)</span>
+    <form method="POST" action="/admin/toggle/<%= user._id %>">
+      <button class="btn btn-sm btn-outline-primary">
+        Set as <%= user.user_type === 'admin' ? 'user' : 'admin' %>
+      </button>
+    </form>
+  </li>
+  

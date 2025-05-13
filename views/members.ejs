@@ -1,14 +1,12 @@
-<%- include('templates/header', { title:'Members', active:'members' }) %>
-<div class="text-center mb-4">
-  <h1>Hello, <%= user.name %>!</h1>
-  <a href="/logout" class="btn btn-secondary">Sign Out</a>
+<%- include('templates/header', { title:'Members', active:active }) %>
+
+<h2>Members Area</h2>
+<p>Hello, <%= user.name %>!</p>
+<div class="row">
+  <div class="col-md-4"><img src="/images/meow1.jpeg" class="img-fluid"></div>
+  <div class="col-md-4"><img src="/images/meow2.jpeg" class="img-fluid"></div>
+  <div class="col-md-4"><img src="/images/meow3.jpeg" class="img-fluid"></div>
 </div>
-<!-- Bootstrap grid: 3 columns on md+ screens, stacked on sm -->
-<div class="row g-4">
-  <% images.forEach(img => { %>
-    <div class="col-12 col-md-4">
-      <img src="/images/<%= img %>" class="img-fluid rounded" alt="Member image">
-    </div>
-  <% }); %>
-</div>
+<p class="mt-3"><a class="btn btn-primary" href="/logout">Log Out</a></p>
+
 <%- include('templates/footer') %>

@@ -1,0 +1,22 @@
+<%- include('templates/header', { title:'Home', active:active }) %>
+
+<div 
+  class="d-flex flex-column justify-content-center align-items-center text-center" 
+  style="min-height: 60vh;"
+>
+  <% if (user) { %>
+    <h1>Welcome, <%= user.name %>!</h1>
+    <p>
+      <a class="btn btn-primary me-2" href="/members">Members Area</a>
+      <a class="btn btn-secondary" href="/logout">Log Out</a>
+    </p>
+  <% } else { %>
+    <h1>Welcome to MyApp</h1>
+    <p>
+      <a class="btn btn-primary me-2" href="/signup">Sign Up</a>
+      <a class="btn btn-primary" href="/login">Log In</a>
+    </p>
+  <% } %>
+</div>
+
+<%- include('templates/footer') %>

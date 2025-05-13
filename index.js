@@ -12,8 +12,6 @@ mongoose
   .connect(
     `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`
   )
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -83,7 +81,16 @@ app.get('/members', (req, res) => {
   if (!req.session.user) return res.redirect('/');
   res.render('members', { user: req.session.user, active: 'members' });
 });
-
+const RENDER_URL = 'https://assignment1-1-6jeg.onrender.com';
+const PING_INTERVAL = 14 * 60 * 1000;
+function keepAlive() {
+    axios.get(RENDER_URL)
+        .then(response => {
+        })
+        .catch(error => {
+        });
+}
+setInterval(keepAlive, PING_INTERVAL);
 app.get('/admin', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   if (req.session.user.user_type !== 'admin') {
